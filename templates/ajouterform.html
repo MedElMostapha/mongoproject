@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Formulaire d'ajout de candidat</title>
+    <!-- Include Tailwind CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100 p-6">
+    <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+      <h1 class="text-3xl font-semibold mb-6">Ajouter un nouveau candidat</h1>
+      <form action="{{ url_for('ajouter') }}" method="post" class="space-y-4">
+        {{ csrf_token }}
+        <div>
+          <label for="nom" class="block text-gray-700 font-medium">Nom :</label>
+          <input
+            name="nom"
+            id="nom"
+            type="text"
+            placeholder="Nom"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+          />
+        </div>
+        <div>
+          <label for="prenom" class="block text-gray-700 font-medium"
+            >Prénom :</label
+          >
+          <input
+            name="prenom"
+            id="prenom"
+            type="text"
+            placeholder="Prénom"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+          />
+        </div>
+        <div>
+          <label for="age" class="block text-gray-700 font-medium"
+            >age :</label
+          >
+          <input
+            name="age"
+            id="age"
+            type="text"
+            placeholder="age"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+          />
+        </div>
+        <div>
+          <label for="prenom" class="block text-gray-700 font-medium"
+            >Partie :</label
+          >
+          <input
+            name="partie"
+            id="partie"
+            type="text"
+            placeholder="Partie"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+          />
+        </div>
+        <div>
+          <label for="image" class="block text-gray-700 font-medium"
+            >Image :</label
+          >
+          <input
+            name="image"
+            id="image"
+            type="file"
+            accept="image/*"
+            class="mt-1 block w-full"
+          />
+        </div>
+        <button
+          type="submit"
+          class="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+        >
+          Ajouter
+        </button>
+      </form>
+    </div>
+  </body>
+</html>

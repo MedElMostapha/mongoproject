@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des candidats</title>
+    <!-- Include Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">Liste des candidats</h1>
+        <table class="min-w-full divide-y divide-gray-300">
+            <thead>
+                <tr>
+                    <th class="px-6 py-3 bg-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+                    <th class="px-6 py-3 bg-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prénom</th>
+                    <th class="px-6 py-3 bg-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-300">
+                {% for candidat in candidats %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ candidat.nom }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ candidat.prenom }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center space-x-4">
+                            <a href="{{ url_for('modifier_candidat', candidat_id=candidat._id) }}" class="text-blue-500 hover:text-blue-700">Modifier</a>
+                            <form action="{{ url_for('supprimer_candidat', candidat_id=candidat._id) }}" method="post">
+                                <button type="submit" class="text-red-500 hover:text-red-700">Supprimer</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page d'administration</title>
+    <!-- Include Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-6">
+    <a
+          href="{{ url_for('deconnexion') }}"
+          class="text-blue-500 hover:text-blue-700 "
+          ><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
+            <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+          </svg></a>
+    <div class="max-w-7xl mx-auto flex">
+
+        <!-- Sidebar -->
+        <div class="w-1/4 bg-white mr-8 shadow-md rounded-lg">
+            <h2 class="text-lg font-semibold mb-4 px-6 py-4 bg-gray-100 border-b border-gray-300">Actions d'administration</h2>
+            <ul class="space-y-2 px-6 py-4">
+                <li>
+                    <a href="{{ url_for('ajouter') }}" class="block text-gray-600 hover:text-blue-600 transition duration-300">Ajouter un candidat</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('liste_candidats') }}" class="block text-gray-600 hover:text-blue-600 transition duration-300">Liste des candidats</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('deconnexion') }}" class="block text-gray-600 hover:text-blue-600 transition duration-300">Déconnexion</a>
+                </li>
+            </ul>
+        </div>
+        <!-- Main Content -->
+        <div class="w-3/4">
+            <div class="bg-white shadow-md rounded-lg">
+                <h1 class="text-2xl font-semibold mb-4 px-6 py-4 bg-gray-100 border-b border-gray-300">Page d'administration</h1>
+
+                <!-- Liste des utilisateurs -->
+                <div class="mb-8 px-6 py-4">
+                    <h2 class="text-xl font-semibold mb-2">Liste des utilisateurs</h2>
+                    <ul class="list-disc list-inside text-gray-700">
+                        {% for utilisateur in utilisateurs %}
+                        <li>{{ utilisateur.nom }} {{ utilisateur.prenom }} - {{ utilisateur.email }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Liste des candidats avec taux de vote -->
+                <div class="px-6 py-4">
+                    <h2 class="text-xl font-semibold mb-2">Liste des candidats avec taux de vote</h2>
+                    <ul class="list-disc list-inside text-gray-700">
+                        {% for candidat in candidats %}
+                        <li>{{ candidat["nom"] }} {{ candidat["prenom"] }} - Taux de vote: {% if candidat_votes[candidat._id] %}{{ candidat_votes[candidat._id] }}{% else %}0{% endif %}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
