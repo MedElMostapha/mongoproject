@@ -15,7 +15,7 @@ client=MongoClient("localhost",27017)
 db=client['election']
 candidat=db.candidat
 utilisateurs=db.utilisateurs
-vote=db.vote
+vote_table=db.votes
 
 
 def est_authentifie(role_requis=None):
@@ -32,12 +32,14 @@ def inscription():
     if request.method == 'POST':
         nom = request.form['nom']
         prenom = request.form['prenom']
-        email = request.form['email']
+        nni=request.form['nni']
+        # email = request.form['email']
+        nni=request.form['nni']
         mot_de_passe = request.form['mot_de_passe'].encode('utf-8')
         role = 'electeur'  # Vous pouvez ajouter un champ pour le rôle dans le formulaire d'inscription
 
         # Vérifie si l'utilisateur existe déjà dans la base de données
-        if utilisateurs.find_one({'email': email}):
+        if utilisateurs.find_one({'nni': nni}):
             return 'Un utilisateur avec cet email existe déjà. Veuillez choisir un autre email.'
 
         # Hachage du mot de passe
@@ -47,7 +49,7 @@ def inscription():
         nouvel_utilisateur = {
             'nom': nom,
             'prenom': prenom,
-            'email': email,
+            'nni': nni,
             'mot_de_passe': mot_de_passe_hache,
             'role': role  # Vous pouvez stocker le rôle de l'utilisateur dans la base de données
         }
@@ -62,24 +64,26 @@ def inscription():
 @app.route('/', methods=['GET', 'POST'])
 def connexion():
     if request.method == 'POST':
-        email = request.form['email']
         mot_de_passe = request.form['mot_de_passe'].encode('utf-8')
         motadmin = request.form['mot_de_passe']
+        nni = request.form['nni']
 
-        utilisateur = utilisateurs.find_one({'email': email})
+        # Vérifier si l'utilisateur est un administrateur
+        if nni == 'admin@admin' and motadmin == 'admin':
+            session['admin'] = nni
+            return redirect(url_for('page_admin'))
 
-        if utilisateur and bcrypt.checkpw(mot_de_passe, utilisateur['mot_de_passe']):
+        # Si ce n'est pas un administrateur, recherchez l'utilisateur dans la base de données
+        utilisateur = utilisateurs.find_one({'nni': nni})
+
+        if utilisateur and bcrypt.checkpw(mot_de_passe, utilisateur['mot_de_passe']) and nni == utilisateur['nni']:
             session['utilisateur_id'] = str(utilisateur['_id'])
             return redirect(url_for('index'))
-        elif email == 'admin@admin' and motadmin == 'admin':
-            session['admin'] = email
-            return redirect(url_for('page_admin'))
         else:
             return 'Identifiants incorrects. Veuillez réessayer.'
     else:
         return render_template('connexion.html')
 
-    
 @app.route('/deconnexion')
 def deconnexion():
     session.clear()
@@ -88,11 +92,7 @@ def deconnexion():
 
 @app.route("/candidats",methods=['GET','POST'])
 def index():
-
     candidats=candidat.find()
-
-
-
     return render_template("index.html",candidats=candidats)
 
 @app.route('/list', methods=['GET'])
@@ -132,9 +132,6 @@ def supprimer_candidat(candidat_id):
 
 @app.route("/ajouter",methods=['GET','POST'])
 def ajouter():
-
-
-
     if request.method=='POST':
 
         nom=request.form['nom']
@@ -153,13 +150,11 @@ def ajouter():
     
     return render_template('ajouterform.html')
 @app.route('/voter', methods=['POST'])
-
 def voter():
     if request.method == 'POST':
         if est_authentifie():
             nom = request.form['nom']
             prenom = request.form['prenom']
-            verdict = request.form['vote']
 
             # Récupérer l'ID de l'utilisateur à partir de la session
             utilisateur_id = session['utilisateur_id']
@@ -168,7 +163,7 @@ def voter():
             # Vérifier si l'utilisateur existe
             if utilisateur:
                 # Insérer le vote dans la base de données
-                vote.insert_one({'utilisateur_id': utilisateur_id, 'nom': nom, 'prenom': prenom, 'verdict': verdict})
+                vote_table.insert_one({'utilisateur_id': utilisateur_id, 'nom': nom, 'prenom': prenom})
                 return 'Votre vote a été enregistré avec succès.'
             else:
                 return 'Utilisateur non trouvé.'
@@ -183,27 +178,47 @@ def voter():
 @app.route('/admin')
 def page_admin():
     if 'admin' in session:
-        # Récupérer les données que vous souhaitez afficher dans la page d'administration
-        # Par exemple, vous pouvez récupérer la liste des utilisateurs, des candidats, etc.
-        utilisateurs_data = utilisateurs.find()
+        
+        
         candidats_data = candidat.find()
         candidats_votes = []
-
         for cand in candidats_data:
-            votes_count = vote.count_documents({'utilisateur_id': cand['_id']})
+            votes_count = vote_table.count_documents({'utilisateur_id': cand['_id']})
             candidats_votes.append({'nom': cand['nom'], 'prenom': cand['prenom'], 'votes_count': votes_count})
-
-
-        return render_template('admin.html', utilisateurs=utilisateurs_data, candidats=candidats_data,candidats_votes=candidats_votes)
+        return render_template('admin.html', candidats=candidats_data,candidats_votes=candidats_votes)
     else:
         return 'Accès refusé. Vous devez être connecté en tant qu\'administrateur.'
 
-# Dans votre template admin.html, vous pouvez afficher les données récupérées de la base de données
+@app.route('/electeurs')
+def page_electeurs():
+    if 'admin' in session:
+        utilisateurs_data = utilisateurs.find()
+        return render_template('electeurs.html',utilisateurs=utilisateurs_data)
+    else:
+        return 'Accès refusé. Vous devez être connecté en tant qu\'administrateur.'
 
 
+@app.route('/taux_vote_par_candidat')
+def taux_vote_par_candidat():
+    candidats = utilisateurs.find({'role': 'candidat'})
+    candidats_votes = []
 
+    # Calculer le nombre total de votes
+    total_votes = vote_table.count_documents({})
 
+    # Calculer le nombre de votes pour chaque candidat
+    for candidat in candidats:
+        votes_count = vote_table.count_documents({'candidat_id': str(candidat['_id'])})
+        candidats_votes.append({'nom': candidat['nom'], 'prenom': candidat['prenom'], 'votes_count': votes_count})
+    
+    # Calculer le taux de vote pour chaque candidat
+    for candidat in candidats_votes:
+        if total_votes > 0:
+            candidat['vote_rate'] = (candidat['votes_count'] / total_votes) * 100
+        else:
+            candidat['vote_rate'] = 0
+    
+    return render_template('admin.html', candidats_votes=candidats_votes)
 
-if __name__ =="__main__" :
-
+if __name__ == '__main__':
     app.run(debug=True)

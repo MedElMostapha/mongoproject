@@ -8,33 +8,62 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 p-6">
-    <div class="max-w-3xl mx-auto">
-        <h1 class="text-3xl font-bold mb-6">Liste des candidats</h1>
-        <table class="min-w-full divide-y divide-gray-300">
-            <thead>
-                <tr>
-                    <th class="px-6 py-3 bg-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
-                    <th class="px-6 py-3 bg-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prénom</th>
-                    <th class="px-6 py-3 bg-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-300">
-                {% for candidat in candidats %}
-                <tr>
-                    <td class="px-6 py-4 whitespace-nowrap">{{ candidat.nom }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">{{ candidat.prenom }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center space-x-4">
-                            <a href="{{ url_for('modifier_candidat', candidat_id=candidat._id) }}" class="text-blue-500 hover:text-blue-700">Modifier</a>
-                            <form action="{{ url_for('supprimer_candidat', candidat_id=candidat._id) }}" method="post">
-                                <button type="submit" class="text-red-500 hover:text-red-700">Supprimer</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="flex justify-between items-center py-4 px-6 bg-white border-b-4 border-indigo-400">
+        <div class="flex justify-between items-center  py-4 px-6">
+            <div>
+                <img src="static/trans_logo.png" alt="" class="w-16 h-30 rounded-full">
+            </div>
+        </div>
+        <div class="ml-4"> <!-- Ajout d'une marge à gauche pour l'espace -->
+            <h1 class="text-xl font-bold text-indigo-600">COMMITION ELECTORALE NATIONALE INDEPENDANTE</h1>
+        </div>
+        <div>
+            <a href="{{ url_for('deconnexion') }}" class="text-blue-500 hover:text-blue-700">
+                <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
+                    <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+    <div class="max-w-7xl mx-auto flex">
+
+        <!-- Sidebar -->
+        {% include "layouts/sidebar.html" %}
+
+        <!-- Main Content -->
+        <div class="w-3/4">
+            <div class="bg-white shadow-md rounded-lg">
+                <div class="max-w-3xl mx-auto">
+                    <h1 class="text-3xl font-bold mb-6">Liste des candidats</h1>
+                    <table class="min-w-full divide-y divide-gray-300">
+                        <thead>
+                            <tr>
+                                <th class="px-6 py-3 bg-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+                                <th class="px-6 py-3 bg-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prénom</th>
+                                <th class="px-6 py-3 bg-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-300">
+                            {% for candidat in candidats %}
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ candidat.nom }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ candidat.prenom }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center space-x-4">
+                                        <a href="{{ url_for('modifier_candidat', candidat_id=candidat._id) }}" class="text-blue-500 hover:text-blue-700">Modifier</a>
+                                        <form action="{{ url_for('supprimer_candidat', candidat_id=candidat._id) }}" method="post">
+                                            <button type="submit" class="text-red-500 hover:text-red-700">Supprimer</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>

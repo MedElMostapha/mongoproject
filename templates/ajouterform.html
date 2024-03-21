@@ -1,85 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Formulaire d'ajout de candidat</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulaire d'ajouter de candidat</title>
     <!-- Include Tailwind CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
-  </head>
-  <body class="bg-gray-100 p-6">
-    <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
-      <h1 class="text-3xl font-semibold mb-6">Ajouter un nouveau candidat</h1>
-      <form action="{{ url_for('ajouter') }}" method="post" class="space-y-4">
-        {{ csrf_token }}
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="flex justify-between items-center py-4 px-6 bg-white border-b-4 border-indigo-400">
+    <div class="flex justify-between items-center  py-4 px-6">
         <div>
-          <label for="nom" class="block text-gray-700 font-medium">Nom :</label>
-          <input
-            name="nom"
-            id="nom"
-            type="text"
-            placeholder="Nom"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          />
+            <img src="static/trans_logo.png" alt="" class="w-16 h-30 rounded-full">
         </div>
-        <div>
-          <label for="prenom" class="block text-gray-700 font-medium"
-            >Prénom :</label
-          >
-          <input
-            name="prenom"
-            id="prenom"
-            type="text"
-            placeholder="Prénom"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          />
-        </div>
-        <div>
-          <label for="age" class="block text-gray-700 font-medium"
-            >age :</label
-          >
-          <input
-            name="age"
-            id="age"
-            type="text"
-            placeholder="age"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          />
-        </div>
-        <div>
-          <label for="prenom" class="block text-gray-700 font-medium"
-            >Partie :</label
-          >
-          <input
-            name="partie"
-            id="partie"
-            type="text"
-            placeholder="Partie"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          />
-        </div>
-        <div>
-          <label for="image" class="block text-gray-700 font-medium"
-            >Image :</label
-          >
-          <input
-            name="image"
-            id="image"
-            type="file"
-            accept="image/*"
-            class="mt-1 block w-full"
-          />
-        </div>
-        <button
-          type="submit"
-          class="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-        >
-          Ajouter
-        </button>
-      </form>
     </div>
-  </body>
+    <div class="ml-4"> <!-- Ajout d'une marge à gauche pour l'espace -->
+        <h1 class="text-xl font-bold text-indigo-600">COMMITION ELECTORALE NATIONALE INDEPENDANTE</h1>
+    </div>
+    <div>
+        <a href="{{ url_for('deconnexion') }}" class="text-blue-500 hover:text-blue-700">
+            <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
+                <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+            </svg>
+        </a>
+    </div>
+</div>
+
+    <div class="max-w-7xl mx-auto flex">
+
+        <!-- Sidebar -->
+        {% include "layouts/sidebar.html" %}
+        <!-- Main Content -->
+        <div class="w-3/4">
+            <div class="bg-white shadow-md rounded-lg">
+                <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+                  <h1 class="text-3xl font-semibold mb-6">Ajouter un candidat</h1>
+                  <form action="{{ url_for('ajouter') }}" method="post" class="space-y-4">
+                    {{ csrf_token }}
+                    <div>
+                      <label for="nom" class="block text-gray-700 font-medium">Nom :</label>
+                      <input
+                        name="nom"
+                        id="nom"
+                        type="text"
+                        placeholder="Nom"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                      />
+                    </div>
+                    <div>
+                      <label for="prenom" class="block text-gray-700 font-medium"
+                        >Prénom :</label
+                      >
+                      <input
+                        name="prenom"
+                        id="prenom"
+                        type="text"
+                        placeholder="Prénom"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                      />
+                    </div>
+                    <div>
+                      <label for="age" class="block text-gray-700 font-medium"
+                        >age :</label
+                      >
+                      <input
+                        name="age"
+                        id="age"
+                        type="text"
+                        placeholder="age"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                      />
+                    </div>
+                    <div>
+                      <label for="prenom" class="block text-gray-700 font-medium"
+                        >Partie :</label
+                      >
+                      <input
+                        name="partie"
+                        id="partie"
+                        type="text"
+                        placeholder="Partie"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                      />
+                    </div>
+                    <div>
+                      <label for="image" class="block text-gray-700 font-medium"
+                        >Image :</label
+                      >
+                      <input
+                        name="image"
+                        id="image"
+                        type="file"
+                        accept="image/*"
+                        class="mt-1 block w-full"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      class="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                    >
+                      Ajouter
+                    </button>
+                  </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
 </html>

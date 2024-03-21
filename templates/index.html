@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -35,16 +36,15 @@
           ><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
             <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
             <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
-          </svg></a
-        >
+          </svg></a>
       </div>
 
       <div class="scrollable-list">
-        <form action="/voter" method="post" class="space-y-6">
+        <form action="{{ url_for('voter') }} " method="post" class="space-y-6">
           {% for candidat in candidats %}
           <div class="border rounded-lg p-4 flex items-center">
             <img
-              src="{{ candidat.image }}"
+              src="{{ url_for('static', filename= candidat.image) }}"
               alt="{{ candidat.nom }}"
               class="w-16 h-16 rounded-full mr-4"
             />
@@ -53,19 +53,9 @@
                 {{ candidat.nom }} {{ candidat.prenom }}
               </label>
               <input type="hidden" name="nom" value="{{ candidat.nom }}" />
-              <input
-                type="hidden"
-                name="prenom"
-                value="{{ candidat.prenom }}"
-              />
+              <input type="hidden" name="prenom" value="{{ candidat.prenom }}"/>
               <div class="flex items-center mt-2">
-                <input
-                  type="radio"
-                  id="vote_{{ candidat._id }}"
-                  name="vote"
-                  value="{{ candidat._id }}"
-                  class="form-radio text-indigo-600 h-4 w-4"
-                />
+                <input type="radio" id="vote_{{ candidat._id }}" name="vote" value="{{ candidat._id }}" class="form-radio text-indigo-600 h-4 w-4"/>
                 <label for="vote_{{ candidat._id }}" class="ml-2 text-gray-700">
                   Votez pour ce candidat
                 </label>
@@ -73,14 +63,12 @@
             </div>
           </div>
           {% endfor %}
-        </form>
-      </div>
-      <button
-        type="submit"
-        class="fixed-button px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-      >
+        <button type="submit" class="fixed-button px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600">
         Soumettre
       </button>
+        </form>
+      </div>
+      
     </div>
   </body>
 </html>
