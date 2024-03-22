@@ -1,6 +1,8 @@
 from flask import Flask,render_template,request,redirect,url_for,session
 from pymongo import MongoClient
 import bcrypt
+from datetime import datetime, timedelta
+
 
 
 from bson.objectid import ObjectId
@@ -10,12 +12,12 @@ app= Flask("__name__")
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'  # Remplacez ceci par votre propre clé secrète
 
 
-client=MongoClient("localhost",27017)
+client=MongoClient("mongodb+srv://mohamedlemineelmostapha:cjdDhzCgE6yXxlgD@cluster0.pjq7xaj.mongodb.net/election")
 
 db=client['election']
-candidat=db.candidat
+candidat_table=db.candidat
 utilisateurs=db.utilisateurs
-vote_table=db.votes
+vote_table=db.vote
 
 
 def est_authentifie(role_requis=None):
@@ -92,12 +94,12 @@ def deconnexion():
 
 @app.route("/candidats",methods=['GET','POST'])
 def index():
-    candidats=candidat.find()
+    candidats=candidat_table.find()
     return render_template("index.html",candidats=candidats)
 
 @app.route('/list', methods=['GET'])
 def liste_candidats():
-    candidats = candidat.find()
+    candidats = candidat_table.find()
     return render_template('candidats.html', candidats=candidats)
 
 # Ajouter un nouveau candidat
@@ -106,7 +108,7 @@ def ajouter_candidat():
     if request.method == 'POST':
         nom = request.form['nom']
         prenom = request.form['prenom']
-        candidat.insert_one({'nom': nom, 'prenom': prenom})
+        candidat_table.insert_one({'nom': nom, 'prenom': prenom})
         return redirect(url_for('liste_candidats'))
     else:
         return render_template('ajouterForm.html')
@@ -114,11 +116,11 @@ def ajouter_candidat():
 # Modifier un candidat existant
 @app.route('/candidats/modifier/<string:candidat_id>', methods=['GET', 'POST'])
 def modifier_candidat(candidat_id):
-    candidat = candidat.find_one({'_id': ObjectId(candidat_id)})
+    candidat = candidat_table.find_one({'_id': ObjectId(candidat_id)})
     if request.method == 'POST':
         nom = request.form['nom']
         prenom = request.form['prenom']
-        candidat.update_one({'_id': ObjectId(candidat_id)}, {'$set': {'nom': nom, 'prenom': prenom}})
+        candidat_table.update_one({'_id': ObjectId(candidat_id)}, {'$set': {'nom': nom, 'prenom': prenom}})
         return redirect(url_for('liste_candidats'))
     else:
         return render_template('modifier_candidat.html', candidat=candidat)
@@ -126,7 +128,7 @@ def modifier_candidat(candidat_id):
 # Supprimer un candidat
 @app.route('/candidats/supprimer/<string:candidat_id>', methods=['POST'])
 def supprimer_candidat(candidat_id):
-    candidat.delete_one({'_id': ObjectId(candidat_id)})
+    candidat_table.delete_one({'_id': ObjectId(candidat_id)})
     return redirect(url_for('liste_candidats'))
 
 
@@ -143,7 +145,7 @@ def ajouter():
         cnd={'nom':nom,'prenom':prenom,'image':image,'age':age,"partie":partie}
 
 
-        candidat.insert_one(cnd)
+        candidat_table.insert_one(cnd)
 
         return redirect('ajouter')
 
@@ -155,6 +157,7 @@ def voter():
         if est_authentifie():
             nom = request.form['nom']
             prenom = request.form['prenom']
+            candidat_id = request.form['id']
 
             # Récupérer l'ID de l'utilisateur à partir de la session
             utilisateur_id = session['utilisateur_id']
@@ -163,7 +166,7 @@ def voter():
             # Vérifier si l'utilisateur existe
             if utilisateur:
                 # Insérer le vote dans la base de données
-                vote_table.insert_one({'utilisateur_id': utilisateur_id, 'nom': nom, 'prenom': prenom})
+                vote_table.insert_one({'utilisateur_id': utilisateur_id, 'nom': nom, 'prenom': prenom,'candidat_id':ObjectId(candidat_id)})
                 return 'Votre vote a été enregistré avec succès.'
             else:
                 return 'Utilisateur non trouvé.'
@@ -173,21 +176,29 @@ def voter():
         return 'Méthode non autorisée.'
 
 
+def calculate_vote_rate(votes_count, total_votes):
+    if total_votes == 0:
+        return 0
+    return round((votes_count / total_votes) * 100,2)
 
 
 @app.route('/admin')
 def page_admin():
     if 'admin' in session:
+        total_votes = vote_table.count_documents({})  # Nombre total de votes exprimés
         
-        
-        candidats_data = candidat.find()
+        candidats_data = candidat_table.find()
         candidats_votes = []
         for cand in candidats_data:
-            votes_count = vote_table.count_documents({'utilisateur_id': cand['_id']})
-            candidats_votes.append({'nom': cand['nom'], 'prenom': cand['prenom'], 'votes_count': votes_count})
-        return render_template('admin.html', candidats=candidats_data,candidats_votes=candidats_votes)
+            votes_count = vote_table.count_documents({'candidat_id': ObjectId(cand['_id'])})
+            vote_rate = calculate_vote_rate(votes_count, total_votes)
+            candidats_votes.append({'nom': cand['nom'], 'prenom': cand['prenom'], 'votes_count': votes_count, 'vote_rate': vote_rate})
+        
+        return render_template('admin.html', candidats_votes=candidats_votes)
     else:
         return 'Accès refusé. Vous devez être connecté en tant qu\'administrateur.'
+    
+
 
 @app.route('/electeurs')
 def page_electeurs():
@@ -200,11 +211,12 @@ def page_electeurs():
 
 @app.route('/taux_vote_par_candidat')
 def taux_vote_par_candidat():
-    candidats = utilisateurs.find({'role': 'candidat'})
+    candidats = candidat_table.find()
     candidats_votes = []
 
     # Calculer le nombre total de votes
     total_votes = vote_table.count_documents({})
+    print(total_votes)
 
     # Calculer le nombre de votes pour chaque candidat
     for candidat in candidats:

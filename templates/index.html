@@ -44,41 +44,41 @@
           </a>
       </div>
   </div>
-    <div class="max-w-3xl mx-auto">
-      <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold">Votez pour votre candidat préféré</h1>
-      </div>
-
-      <div class="scrollable-list">
-        <form action="{{ url_for('voter') }} " method="post" class="space-y-6">
-          {% for candidat in candidats %}
-          <div class="border rounded-lg p-4 flex items-center">
-            <img
-              src="{{ url_for('static', filename= candidat.image) }}"
-              alt="{{ candidat.nom }}"
-              class="w-16 h-16 rounded-full mr-4"
-            />
-            <div>
-              <label class="block text-lg font-semibold text-gray-800">
-                {{ candidat.nom }} {{ candidat.prenom }}
-              </label>
-              <input type="hidden" name="nom" value="{{ candidat.nom }}" />
-              <input type="hidden" name="prenom" value="{{ candidat.prenom }}"/>
-              <div class="flex items-center mt-2">
-                <input type="radio" id="vote_{{ candidat._id }}" name="vote" value="{{ candidat._id }}" class="form-radio text-indigo-600 h-4 w-4"/>
-                <label for="vote_{{ candidat._id }}" class="ml-2 text-gray-700">
-                  Votez pour ce candidat
-                </label>
-              </div>
-            </div>
-          </div>
-          {% endfor %}
-        <button type="submit" class="fixed-button px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-        Soumettre
-      </button>
-        </form>
-      </div>
-      
+  <div class="max-w-3xl mx-auto">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold">Votez pour votre candidat préféré</h1>
     </div>
+  
+    {% for candidat in candidats %}
+    <div class="scrollable-list">
+      <form action="{{ url_for('voter') }} " method="post" class="space-y-6">
+        <div class="border rounded-lg p-4 flex items-center justify-between">
+          <img
+            src="{{ url_for('static', filename= candidat.image) }}"
+            alt="{{ candidat.nom }}"
+            class="w-16 h-16 rounded-full mr-4"
+          />
+          <div>
+            <label class="block text-lg font-semibold text-gray-800">
+              {{ candidat.nom }} {{ candidat.prenom }}
+            </label>
+            <input type="hidden" name="nom" value="{{ candidat.nom }}" />
+            <input type="hidden" name="prenom" value="{{ candidat.prenom }}" />
+            <input type="hidden" name="id" value="{{ candidat._id }}" />
+          </div>
+          <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white rounded-md px-4 py-2 flex items-center space-x-2">
+            <!-- SVG icon code -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+            <span class="font-semibold">Votez</span> <!-- Changed text to "Votez" and added font weight -->
+          </button>
+        </div>
+      </form>
+    </div>
+    {% endfor %}
+  
+  </div>
+  
   </body>
 </html>

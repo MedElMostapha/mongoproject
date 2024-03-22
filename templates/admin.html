@@ -34,15 +34,48 @@
         <!-- Main Content -->
         <div class="w-3/4">
             <div class="bg-white shadow-md rounded-lg">
-                <!-- Liste des candidats avec taux de vote -->
+                <!-- Tableau des candidats avec taux de vote -->
                 <div class="px-6 py-4">
-                    <h2 class="text-xl font-semibold mb-2">Liste des candidats avec taux de vote</h2>
-                    <ul class="list-disc list-inside text-gray-700">
-                        <li>{{candidats_votes}}</li>
-                    </ul>
+                    <h2 class="text-xl font-semibold mb-2">Tableau des candidats avec taux de vote</h2>
+                    <div class="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
+                        <div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
+                            <table class="min-w-full leading-normal">
+                                <thead>
+                                    <tr>
+                                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nom</th>
+                                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Prénom</th>
+                                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Votes</th>
+                                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Taux de  vote</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for candidat in candidats_votes %}
+                                    <tr>
+                                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">{{ candidat.nom }}</td>
+                                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">{{ candidat.prenom }}</td>
+                                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">{{ candidat.votes_count }}</td>
+                                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                            <div class="bg-gray-200 w-20 h-3 rounded-full">
+                                                <div class="bg-blue-500 h-full rounded-full flex items-center" style="width: {{ candidat.vote_rate }}%;">
+                                                    <span class="text-xs text-black text-center p-2 flex items-center justify-center">{{ "%.2f"|format(candidat.vote_rate) }}%</span>
+                                                </div>
+                                            </div>
+                                            
+                                            
+                                        </td>
+                                    </tr>
+                                    
+                                    
+                                    
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+        
     </div>
 </body>
 </html>
