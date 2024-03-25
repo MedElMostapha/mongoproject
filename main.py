@@ -231,3 +231,10 @@ def taux_vote_par_candidat():
     
     return render_template('admin.html', candidats_votes=candidats_votes)
 
+def runapp():
+
+    if __name__ == '__main__':
+        app.run(debug=False)
+
+
+apprun=runapp()
