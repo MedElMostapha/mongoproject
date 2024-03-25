@@ -2,14 +2,13 @@ from flask import Flask,render_template,request,redirect,url_for,session
 from pymongo import MongoClient
 import bcrypt
 from datetime import datetime, timedelta
+from createapp import app
 
 
 
 from bson.objectid import ObjectId
 
 
-app = Flask(__name__, template_folder='templates')
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'  # Remplacez ceci par votre propre clé secrète
 
 
 client=MongoClient("mongodb+srv://mohamedlemineelmostapha:cjdDhzCgE6yXxlgD@cluster0.pjq7xaj.mongodb.net/election")
@@ -232,5 +231,3 @@ def taux_vote_par_candidat():
     
     return render_template('admin.html', candidats_votes=candidats_votes)
 
-if __name__ == '__main__':
-    app.run(debug=False)
