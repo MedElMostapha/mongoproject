@@ -1,3 +1,3 @@
-from main import runapp
+from venv.main import runapp
 
 runapp()
