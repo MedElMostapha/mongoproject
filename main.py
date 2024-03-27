@@ -1,7 +1,10 @@
-from flask import Flask,render_template,request,redirect,url_for,session
+from flask import Flask,render_template,request,redirect,url_for,session,flash
 from pymongo import MongoClient
 import bcrypt
 from datetime import datetime, timedelta
+import plotly.graph_objs as go
+from plotly.subplots import make_subplots
+
 
 
 
@@ -11,7 +14,7 @@ app = Flask(__name__, template_folder='templates')
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/' 
 
 
-client=MongoClient("mongodb+srv://mohamedlemineelmostapha:cjdDhzCgE6yXxlgD@cluster0.pjq7xaj.mongodb.net/election")
+client=MongoClient("localhost",27017)
 
 db=client['election']
 candidat_table=db.candidat
@@ -88,13 +91,29 @@ def connexion():
 @app.route('/deconnexion')
 def deconnexion():
     session.clear()
+    
+    
     return redirect(url_for('connexion'))
 
 
 @app.route("/candidats",methods=['GET','POST'])
 def index():
-    candidats=candidat_table.find()
-    return render_template("index.html",candidats=candidats)
+    if est_authentifie():
+
+        etat=""
+        candidats=candidat_table.find()
+        utilisateur_id = session.get('utilisateur_id')
+        utilisateur = utilisateurs.find_one({'_id': ObjectId(utilisateur_id)})
+        if utilisateur:
+            has_voted = vote_table.find_one({'utilisateur_id': utilisateur_id})
+            if has_voted:
+                etat="voted"
+            
+        return render_template("index.html",candidats=candidats,etat=etat)
+    
+    else:
+
+        return redirect(url_for('connexion'))
 
 @app.route('/list', methods=['GET'])
 def liste_candidats():
@@ -158,21 +177,27 @@ def voter():
             prenom = request.form['prenom']
             candidat_id = request.form['id']
 
-            # Récupérer l'ID de l'utilisateur à partir de la session
-            utilisateur_id = session['utilisateur_id']
+            utilisateur_id = session.get('utilisateur_id')
             utilisateur = utilisateurs.find_one({'_id': ObjectId(utilisateur_id)})
 
-            # Vérifier si l'utilisateur existe
             if utilisateur:
-                # Insérer le vote dans la base de données
-                vote_table.insert_one({'utilisateur_id': utilisateur_id, 'nom': nom, 'prenom': prenom,'candidat_id':ObjectId(candidat_id)})
-                return 'Votre vote a été enregistré avec succès.'
+                # Check if the user has already voted
+                has_voted = vote_table.find_one({'utilisateur_id': utilisateur_id, 'candidat_id': ObjectId(candidat_id)})
+                if has_voted:
+                    flash('Vous avez déjà voté pour ce candidat.')
+                    return redirect(url_for("index"))
+
+                vote_table.insert_one({'utilisateur_id': utilisateur_id, 'nom': nom, 'prenom': prenom, 'candidat_id': ObjectId(candidat_id)})
+                flash('Votre vote a été enregistré avec succès.')
+
+                return redirect(url_for("index"))
             else:
                 return 'Utilisateur non trouvé.'
         else:
-            return 'Vous devez être connecté pour voter.'
+            return redirect(url_for('connexion'))
     else:
         return 'Méthode non autorisée.'
+
 
 
 def calculate_vote_rate(votes_count, total_votes):
@@ -180,20 +205,33 @@ def calculate_vote_rate(votes_count, total_votes):
         return 0
     return round((votes_count / total_votes) * 100,2)
 
-
 @app.route('/admin')
 def page_admin():
     if 'admin' in session:
         total_votes = vote_table.count_documents({})  # Nombre total de votes exprimés
-        
+        total_candidates = candidat_table.count_documents({})  # Nombre total de candidats
         candidats_data = candidat_table.find()
+
+        
+        participation_count = total_votes
+        non_participation_count = total_candidates - total_votes
+
+        # Créer le graphique Plotly (graphique circulaire)
+        labels = ['Participation', 'Non-participation']
+        values = [participation_count, non_participation_count]
+
+        fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole=0.4)])
+        fig.update_layout(title='Taux de participation vs non-participation')
+
+        # Convertir le graphique Plotly en code HTML pour l'intégrer dans le modèle HTML
+        graph_html = fig.to_html(full_html=False, default_height=300, default_width=800)
         candidats_votes = []
         for cand in candidats_data:
             votes_count = vote_table.count_documents({'candidat_id': ObjectId(cand['_id'])})
             vote_rate = calculate_vote_rate(votes_count, total_votes)
             candidats_votes.append({'nom': cand['nom'], 'prenom': cand['prenom'], 'votes_count': votes_count, 'vote_rate': vote_rate})
-        
-        return render_template('admin.html', candidats_votes=candidats_votes)
+
+        return render_template('admin.html', candidats_votes=candidats_votes, graph_html=graph_html)
     else:
         return 'Accès refusé. Vous devez être connecté en tant qu\'administrateur.'
     

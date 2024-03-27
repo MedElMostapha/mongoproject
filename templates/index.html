@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -9,6 +10,7 @@
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
+    <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
     <style>
       .scrollable-list {
         max-height: 400px;
@@ -45,6 +47,15 @@
       </div>
   </div>
   <div class="max-w-3xl mx-auto">
+    {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="flash-messages">
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
     <div class="flex justify-between items-center mb-8">
       <h1 class="text-3xl font-bold">Votez pour votre candidat préféré</h1>
     </div>
@@ -66,17 +77,24 @@
             <input type="hidden" name="prenom" value="{{ candidat.prenom }}" />
             <input type="hidden" name="id" value="{{ candidat._id }}" />
           </div>
-          <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white rounded-md px-4 py-2 flex items-center space-x-2">
-            <!-- SVG icon code -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-            <span class="font-semibold">Votez</span> <!-- Changed text to "Votez" and added font weight -->
-          </button>
+          {% if etat=='voted' %}
+            <button type="button" class="bg-gray-300 text-gray-600 rounded-md px-4 py-2 cursor-not-allowed" disabled>
+              <span class="font-semibold">Votez</span>
+            </button>
+          {% else %}
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white rounded-md px-4 py-2 flex items-center space-x-2">
+              <!-- SVG icon code -->
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+              <span class="font-semibold">Votez</span>
+            </button>
+          {% endif %}
         </div>
       </form>
     </div>
-    {% endfor %}
+  {% endfor %}
+  
   
   </div>
   
