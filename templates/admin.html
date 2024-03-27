@@ -6,6 +6,12 @@
     <title>Page d'administration</title>
     <!-- Include Tailwind CSS -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .graph-container {
+            display: flex;
+            justify-content: space-around;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 p-6">
     <div class="flex justify-between items-center py-4 px-6 bg-white border-b-4 border-indigo-600">
@@ -33,9 +39,6 @@
 
         <!-- Main Content -->
         <div class="w-3/4">
-            <div id="graph-container ">
-                {{ graph_html | safe }}
-            </div>
             <div class="bg-white shadow-md rounded-lg">
                 <!-- Tableau des candidats avec taux de vote -->
                 <div class="px-6 py-4">
@@ -77,6 +80,7 @@
                     </div>
                 </div>
             </div>
+            
         </div>
         
     </div>

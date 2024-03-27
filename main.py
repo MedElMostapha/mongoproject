@@ -212,19 +212,27 @@ def page_admin():
         total_candidates = candidat_table.count_documents({})  # Nombre total de candidats
         candidats_data = candidat_table.find()
 
-        
         participation_count = total_votes
         non_participation_count = total_candidates - total_votes
 
-        # Créer le graphique Plotly (graphique circulaire)
+        # Créer le graphique Plotly (graphique à barres)
         labels = ['Participation', 'Non-participation']
         values = [participation_count, non_participation_count]
 
-        fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole=0.4)])
-        fig.update_layout(title='Taux de participation vs non-participation')
+        fig = go.Figure(data=[go.Bar(x=labels, y=values, marker_color=['green', 'red'], width=0.5)])  # Définir la largeur des barres à 0.5
+        fig.update_layout(
+            title='Taux de participation',
+          
+            legend=dict(x=0, y=-0.2),  # Positionner les légendes en bas du graphe
+            plot_bgcolor='rgba(255, 255, 255, 0.7)'  # Définir le fond du graphe comme blanc avec une opacité de 70%
+        )
+
+        # Désactiver la barre d'options
+        config = {'displayModeBar': False}
 
         # Convertir le graphique Plotly en code HTML pour l'intégrer dans le modèle HTML
-        graph_html = fig.to_html(full_html=False, default_height=300, default_width=800)
+        graph_html = fig.to_html(full_html=False, default_height=400, default_width=200, config=config)
+
         candidats_votes = []
         for cand in candidats_data:
             votes_count = vote_table.count_documents({'candidat_id': ObjectId(cand['_id'])})
@@ -268,6 +276,38 @@ def taux_vote_par_candidat():
             candidat['vote_rate'] = 0
     
     return render_template('admin.html', candidats_votes=candidats_votes)
+
+
+
+
+
+
+
+@app.route('/resultat')
+def resultat():
+    # Obtenez le nombre total de votes exprimés
+    total_votes = vote_table.count_documents({})
+
+    # Obtenez le nombre total de candidats
+    total_candidates = utilisateurs.count_documents({})
+
+    # Calculez le taux de participation réel
+    participation_rate = (total_votes / total_candidates) * 100 if total_candidates > 0 else 0
+
+    # Calculez le taux de non-participation
+    non_participation_rate = 100 - participation_rate
+
+    # Obtenez les détails de chaque candidat
+    candidats_data = candidat_table.find()
+    candidats_votes = []
+    for cand in candidats_data:
+        votes_count = vote_table.count_documents({'candidat_id': ObjectId(cand['_id'])})
+        candidats_votes.append({'nom': cand['nom'], 'prenom': cand['prenom'], 'votes_count': votes_count})
+
+    return render_template('resultat.html', total_votes=total_votes, total_candidates=total_candidates,
+                           participation_rate=participation_rate, non_participation_rate=non_participation_rate,
+                           candidats_votes=candidats_votes)
+
 
 
 if __name__ == '__main__':
