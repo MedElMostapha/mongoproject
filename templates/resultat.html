@@ -36,6 +36,7 @@
             <table class="w-full border-collapse border border-gray-300">
                 <thead>
                     <tr class="bg-gray-200">
+                        <th class="border border-gray-300 px-6 py-3 text-left">Classement</th>
                         <th class="border border-gray-300 px-6 py-3 text-left">Nom</th>
                         <th class="border border-gray-300 px-6 py-3 text-left">Prénom</th>
                         <th class="border border-gray-300 px-6 py-3 text-left">Votes</th>
@@ -44,6 +45,13 @@
                 <tbody>
                     {% for candidat in candidats_votes %}
                     <tr>
+                        <td class="border border-gray-300 px-6 py-3">
+                            {% if candidat.classement == 1 %}
+                                {{ candidat.classement }} 🎉
+                            {% else %}
+                                {{ candidat.classement }}
+                            {% endif %}
+                        </td>
                         <td class="border border-gray-300 px-6 py-3">{{ candidat.nom }}</td>
                         <td class="border border-gray-300 px-6 py-3">{{ candidat.prenom }}</td>
                         <td class="border border-gray-300 px-6 py-3">{{ candidat.votes_count }}</td>

@@ -56,9 +56,18 @@
                 </ul>
             {% endif %}
         {% endwith %}
+    
+    {% if etat=='voted' %}
     <div class="flex justify-between items-center mb-8">
-      <h1 class="text-3xl font-bold">Votez pour votre candidat préféré</h1>
+      <h6 class="text-3xl text-red-500 font-bold">Vous avez dejat voté vous ne pouvez plus voter une deuxieme fois</h6>
     </div>
+
+    {% else %}
+    <div class="flex justify-between items-center mb-8">
+      <h6 class="text-3xl font-bold ">Votez pour votre candidat préféré</h6>
+    </div>
+    {% endif %}
+
   
     {% for candidat in candidats %}
     <div class="scrollable-list">
