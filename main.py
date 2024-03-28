@@ -208,30 +208,57 @@ def calculate_vote_rate(votes_count, total_votes):
 @app.route('/admin')
 def page_admin():
     if 'admin' in session:
-        total_votes = vote_table.count_documents({})  # Nombre total de votes exprimés
-        total_candidates = candidat_table.count_documents({})  # Nombre total de candidats
-        candidats_data = candidat_table.find()
+        # Calculer le nombre de participations par jour
+        start_date = datetime.now() - timedelta(days=7)  # Date de début il y a une semaine
+        end_date = datetime.now()  # Date de fin aujourd'hui
 
-        participation_count = total_votes
-        non_participation_count = total_candidates - total_votes
+        participation_per_day = []
+        dates = []
 
-        # Créer le graphique Plotly (graphique à barres)
-        labels = ['Participation', 'Non-participation']
-        values = [participation_count, non_participation_count]
+        current_date = start_date
+        while current_date <= end_date:
+            date_str = current_date.strftime('%Y-%m-%d')
+            votes_count = vote_table.count_documents({'date': date_str})  # Supposons que la date est stockée dans la base de données
+            participation_per_day.append(votes_count)
+            dates.append(date_str)
+            current_date += timedelta(days=1)
 
-        fig = go.Figure(data=[go.Bar(x=labels, y=values, marker_color=['green', 'red'], width=0.5)])  # Définir la largeur des barres à 0.5
-        fig.update_layout(
-            title='Taux de participation',
-          
-            legend=dict(x=0, y=-0.2),  # Positionner les légendes en bas du graphe
-            plot_bgcolor='rgba(255, 255, 255, 0.7)'  # Définir le fond du graphe comme blanc avec une opacité de 70%
+        # Créer le graphique Plotly (graphique à courbes)
+        fig1 = go.Figure(data=[go.Scatter(x=dates, y=participation_per_day, mode='lines', marker_color='blue')])
+        fig1.update_layout(
+            title='Nombre de participations par jour',
+
+            xaxis=dict(tickvals=[0], ticktext=['']),
+            plot_bgcolor='white',  # Fond blanc pour le graphique
+            height=300 , # Taille du graphique
         )
 
-        # Désactiver la barre d'options
-        config = {'displayModeBar': False}
-
         # Convertir le graphique Plotly en code HTML pour l'intégrer dans le modèle HTML
-        graph_html = fig.to_html(full_html=False, default_height=400, default_width=200, config=config)
+        graph_html1 = fig1.to_html(full_html=False,default_height=200, default_width=300, config={'displayModeBar': False})
+
+        # Créer le graphique Plotly pour le taux de participation
+        total_votes = vote_table.count_documents({})  # Nombre total de votes exprimés
+        total_candidates = candidat_table.count_documents({})  # Nombre total de candidats
+        participation_count = total_votes
+        non_participation_count = total_votes - total_candidates
+        candidats_data = candidat_table.find()
+
+        values = [participation_count, non_participation_count]
+
+        fig2 = go.Figure(data=[go.Bar(y=values, marker_color=['green', 'red'], width=0.5)])
+        fig2.update_layout(
+            title='Taux de participation',
+            legend_title='Légendes',
+            xaxis=dict(tickvals=[0], ticktext=['']),
+            legend=dict(x=0, y=-0.2),  # Positionner les légendes en bas du graphe
+            plot_bgcolor='white',  # Fond blanc pour le graphique
+            height=300 , # Taille du graphique
+            width=200
+
+        )
+
+        # Convertir le deuxième graphique Plotly en code HTML pour l'intégrer dans le modèle HTML
+        graph_html2 = fig2.to_html(full_html=False,default_height=200, default_width=300, config={'displayModeBar': False})
 
         candidats_votes = []
         for cand in candidats_data:
@@ -239,9 +266,11 @@ def page_admin():
             vote_rate = calculate_vote_rate(votes_count, total_votes)
             candidats_votes.append({'nom': cand['nom'], 'prenom': cand['prenom'], 'votes_count': votes_count, 'vote_rate': vote_rate})
 
-        return render_template('admin.html', candidats_votes=candidats_votes, graph_html=graph_html)
+        return render_template('admin.html', candidats_votes=candidats_votes, graph_html1=graph_html1, graph_html2=graph_html2)
     else:
         return 'Accès refusé. Vous devez être connecté en tant qu\'administrateur.'
+
+
     
 
 
@@ -292,10 +321,10 @@ def resultat():
     total_candidates = utilisateurs.count_documents({})
 
     # Calculez le taux de participation réel
-    participation_rate = (total_votes / total_candidates) * 100 if total_candidates > 0 else 0
+    participation_rate = round((total_votes / total_candidates) * 100 if total_candidates > 0 else 0,2)
 
     # Calculez le taux de non-participation
-    non_participation_rate = 100 - participation_rate
+    non_participation_rate = round(100 - participation_rate,2)
 
     # Obtenez les détails de chaque candidat
     candidats_data = candidat_table.find()
