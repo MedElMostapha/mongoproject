@@ -35,6 +35,11 @@
         <div class="bg-white shadow-md rounded-lg">
             <div class="max-w-3xl mx-auto">
                 <h1 class="text-3xl font-bold mb-6">Liste des des electeurs</h1>
+                <h1>Upload Users</h1>
+                <form action="/upload_users" method="POST" enctype="multipart/form-data">
+                    <input type="file" name="file" accept=".xlsx">
+                    <button type="submit">Upload</button>
+                </form>
                 <table class="min-w-full divide-y divide-gray-300">
                     <thead>
                         <tr>

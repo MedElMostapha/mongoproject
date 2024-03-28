@@ -4,6 +4,8 @@ import bcrypt
 from datetime import datetime, timedelta
 import plotly.graph_objs as go
 from operator import itemgetter
+import pandas as pd
+
 
 from plotly.subplots import make_subplots
 
@@ -199,6 +201,33 @@ def voter():
             return redirect(url_for('connexion'))
     else:
         return 'Méthode non autorisée.'
+    
+@app.route('/upload_users', methods=['POST'])
+def upload_users():
+    if 'file' not in request.files:
+        return 'Aucun fichier n\'a été téléchargé.'
+
+    file = request.files['file']
+    if file.filename == '':
+        return 'Nom de fichier vide.'
+
+    if file and file.filename.endswith('.xlsx'):
+        try:
+            # Lecture du fichier Excel
+            df = pd.read_excel(file)
+            # Convertir les données en dictionnaires pour l'insertion dans MongoDB
+            users_data = df.to_dict('records')
+            # Insérer les données dans la collection utilisateurs
+            utilisateurs.insert_many(users_data)
+            return 'Les utilisateurs ont été importés avec succès dans la base de données.'
+        except Exception as e:
+            return f'Une erreur s\'est produite lors de l\'importation des utilisateurs : {str(e)}'
+    else:
+        return 'Veuillez télécharger un fichier au format Excel (.xlsx).'
+
+
+
+
 
 
 
@@ -210,12 +239,27 @@ def calculate_vote_rate(votes_count, total_votes):
 @app.route('/admin')
 def page_admin():
     if 'admin' in session:
-        # Créer le graphique Plotly pour le taux de participation
-        total_votes = vote_table.count_documents({})  # Nombre total de votes exprimés
-        total_candidates = candidat_table.count_documents({})  # Nombre total de candidats
+        # Obtenez le nombre total de votes exprimés
+        total_votes = vote_table.count_documents({})
+
+        # Obtenez le nombre total de candidats
+        total_candidates = utilisateurs.count_documents({})
+
+        # Calculez le nombre de participations
         participation_count = total_votes
-        non_participation_count = total_votes - total_candidates
+
+        # Calculez le nombre de non-participations
+        non_participation_count = total_candidates - total_votes
+
+        # Calculez le taux de participation réel
+        participation_rate = round((participation_count / total_candidates) * 100, 2)
+
+        # Calculez le taux de non-participation
+        non_participation_rate = round(100 - participation_rate, 2)
+
         candidats_data = candidat_table.find()
+
+        print("non : ",non_participation_count)
 
         values = [participation_count, non_participation_count]
         labels = ['Participation', 'Non-participation']  # Ajout des étiquettes
@@ -224,16 +268,15 @@ def page_admin():
         fig2.update_layout(
             title='Taux de participation',
             xaxis=dict(tickvals=[0], ticktext=['']),
-            legend_title='Légendes',
             legend=dict(x=0, y=-0.2),  # Positionner les légendes en bas du graphe
             plot_bgcolor='white',  # Fond blanc pour le graphique
-            height=300 , # Taille du graphique
+            height=250,  # Taille du graphique
             width=200,
             hovermode='x',  # Activer le mode d'affichage au survol (affiche les informations au survol de la souris)
         )
 
         # Convertir le deuxième graphique Plotly en code HTML pour l'intégrer dans le modèle HTML
-        graph_html2 = fig2.to_html(full_html=False,default_height=200, default_width=300, config={'displayModeBar': False})
+        graph_html2 = fig2.to_html(full_html=False, default_height=100, default_width=200, config={'displayModeBar': False})
 
         candidats_votes = []
         for cand in candidats_data:
@@ -244,6 +287,7 @@ def page_admin():
         return render_template('admin.html', candidats_votes=candidats_votes, graph_html2=graph_html2)
     else:
         return 'Accès refusé. Vous devez être connecté en tant qu\'administrateur.'
+
 
 
 
